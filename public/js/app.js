@@ -12,12 +12,13 @@ const errorMessage = document.getElementById('errorMessage');
 const gameSection = document.getElementById('gameSection');
 const gameTitle = document.getElementById('gameTitle');
 const gameDescription = document.getElementById('gameDescription');
-const gameCanvas = document.getElementById('gameCanvas');
+let gameCanvas = document.getElementById('gameCanvas');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 const newGameBtn = document.getElementById('newGameBtn');
 const gameGallery = document.getElementById('gameGallery');
 
 let currentGame = null;
+let gameLoopId = null;
 
 // ===== 初期化 =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -55,11 +56,29 @@ function setupEventListeners() {
     
     // 新しいゲーム
     newGameBtn.addEventListener('click', () => {
+        // 前のゲームを完全に停止
+        stopCurrentGame();
+        
         gameSection.style.display = 'none';
         promptInput.value = '';
         promptInput.focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+}
+
+// ===== 現在のゲームを停止 =====
+function stopCurrentGame() {
+    console.log('🛑 現在のゲームを停止');
+    
+    // Canvas をリセット
+    if (gameCanvas) {
+        const ctx = gameCanvas.getContext('2d');
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    }
+    
+    // ページをリロード（最も確実な方法）
+    // これにより、すべてのゲームループとイベントリスナーがクリアされる
+    location.reload();
 }
 
 // ===== ゲーム生成 =====
@@ -78,6 +97,9 @@ async function generateGame() {
         promptInput.focus();
         return;
     }
+    
+    // 前のゲームを停止
+    stopCurrentGame();
     
     // UIの状態変更
     setGenerating(true);
@@ -142,16 +164,20 @@ function executeGameCode(code) {
     console.log('🎮 ゲームコードを実行:', code.length, '文字');
     
     try {
-        // キャンバスをリセット
+        // Canvas を完全にリセット
+        gameCanvas = document.getElementById('gameCanvas');
         const ctx = gameCanvas.getContext('2d');
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         
-        // 既存のイベントリスナーをクリア（新しいキャンバスを作成）
-        const newCanvas = gameCanvas.cloneNode(true);
-        gameCanvas.parentNode.replaceChild(newCanvas, gameCanvas);
+        // Canvas を新しく作成
+        const newCanvas = document.createElement('canvas');
+        newCanvas.id = 'gameCanvas';
+        newCanvas.width = 800;
+        newCanvas.height = 600;
         
-        // グローバル変数を更新
-        window.gameCanvas = newCanvas;
+        // 古い Canvas を置き換え
+        gameCanvas.parentNode.replaceChild(newCanvas, gameCanvas);
+        gameCanvas = newCanvas;
         
         // コードを実行
         const script = document.createElement('script');
@@ -168,8 +194,9 @@ function executeGameCode(code) {
 
 // ===== フルスクリーン切替 =====
 function toggleFullscreen() {
+    const canvas = document.getElementById('gameCanvas');
     if (!document.fullscreenElement) {
-        gameCanvas.requestFullscreen().catch(err => {
+        canvas.requestFullscreen().catch(err => {
             console.error('フルスクリーンエラー:', err);
         });
     } else {
@@ -211,6 +238,9 @@ async function loadGallery() {
 // ===== ゲームを読み込み =====
 async function loadGame(gameId) {
     try {
+        // 前のゲームを停止
+        stopCurrentGame();
+        
         const response = await fetch(`${API_BASE_URL}/games/${gameId}`);
         const data = await response.json();
         
