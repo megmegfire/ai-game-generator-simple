@@ -2,12 +2,10 @@
 // グローバル変数
 // ========================================
 let currentQuestionIndex = 0;
-let userInput = ''; // ユーザーの自由入力
 let userSelections = {
     gameType: '',
     color: '',
     place: '',
-    item: '',
     difficulty: ''
 };
 
@@ -21,15 +19,22 @@ const API_BASE_URL = window.location.hostname === 'localhost'
 // ========================================
 const questions = [
     {
-        id: 0,
-        type: 'input',
-        title: '<ruby>ふだん<rt>普段</rt></ruby>どんなゲームが<ruby>す<rt>好</rt></ruby>き？',
-        subtitle: '<ruby>じゆう<rt>自由</rt></ruby>に<ruby>か<rt>書</rt></ruby>いてね！',
-        placeholder: '例：マリオ、ポケモン、鬼ごっこ、パズル...',
-        key: 'userInput'
+        id: 1,
+        title: 'どんなゲームで<ruby>あそ<rt>遊</rt></ruby>びたい？',
+        key: 'gameType',
+        options: [
+            { icon: '🏃', text: '<ruby>に<rt>逃</rt></ruby>げる', value: 'avoid' },
+            { icon: '🍎', text: '<ruby>あつ<rt>集</rt></ruby>める', value: 'catch' },
+            { icon: '💣', text: '<ruby>せめ<rt>攻</rt></ruby>める', value: 'shoot' },
+            { icon: '🐦', text: 'ジャンプ', value: 'jump' },
+            { icon: '🧱', text: '<ruby>こわ<rt>壊</rt></ruby>す', value: 'breakout' },
+            { icon: '🃏', text: '<ruby>きおく<rt>記憶</rt></ruby>', value: 'memory' },
+            { icon: '🧩', text: 'パズル', value: 'puzzle' },
+            { icon: '👆', text: 'クリック', value: 'clicker' }
+        ]
     },
     {
-        id: 1,
+        id: 2,
         title: '<ruby>す<rt>好</rt></ruby>きな<ruby>いろ<rt>色</rt></ruby>は？',
         key: 'color',
         options: [
@@ -44,7 +49,7 @@ const questions = [
         ]
     },
     {
-        id: 2,
+        id: 3,
         title: 'どこで<ruby>あそ<rt>遊</rt></ruby>ぶ？',
         key: 'place',
         options: [
@@ -56,7 +61,7 @@ const questions = [
         ]
     },
     {
-        id: 3,
+        id: 4,
         title: 'むずかしさは？',
         key: 'difficulty',
         options: [
@@ -93,12 +98,9 @@ function showQuestion(index) {
     // 質問タイトル
     document.getElementById('questionTitle').innerHTML = question.title;
 
-    // サブタイトル
+    // サブタイトルを非表示
     const subtitleEl = document.getElementById('questionSubtitle');
-    if (question.subtitle) {
-        subtitleEl.innerHTML = question.subtitle;
-        subtitleEl.style.display = 'block';
-    } else {
+    if (subtitleEl) {
         subtitleEl.style.display = 'none';
     }
 
@@ -106,50 +108,16 @@ function showQuestion(index) {
     const optionsContainer = document.getElementById('optionsContainer');
     optionsContainer.innerHTML = '';
 
-    if (question.type === 'input') {
-        // 自由入力
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'input-container';
-        inputContainer.innerHTML = `
-            <textarea 
-                id="freeInput" 
-                placeholder="${question.placeholder}"
-                rows="4"
-            >${userInput}</textarea>
-            <button id="nextBtn" class="btn-next">
-                <ruby>つぎ<rt>次</rt></ruby>へ →
-            </button>
+    question.options.forEach(option => {
+        const optionCard = document.createElement('div');
+        optionCard.className = 'option-card';
+        optionCard.innerHTML = `
+            <div class="option-icon">${option.icon}</div>
+            <div class="option-text">${option.text}</div>
         `;
-        optionsContainer.appendChild(inputContainer);
-
-        // 次へボタンのイベント
-        setTimeout(() => {
-            document.getElementById('nextBtn').onclick = () => {
-                const input = document.getElementById('freeInput').value.trim();
-                if (input.length < 2) {
-                    alert('もう少し詳しく書いてね！😊');
-                    return;
-                }
-                userInput = input;
-                analyzeUserInput(input);
-                currentQuestionIndex++;
-                showQuestion(currentQuestionIndex);
-            };
-        }, 100);
-
-    } else {
-        // 選択肢
-        question.options.forEach(option => {
-            const optionCard = document.createElement('div');
-            optionCard.className = 'option-card';
-            optionCard.innerHTML = `
-                <div class="option-icon">${option.icon}</div>
-                <div class="option-text">${option.text}</div>
-            `;
-            optionCard.onclick = () => selectOption(question.key, option.value);
-            optionsContainer.appendChild(optionCard);
-        });
-    }
+        optionCard.onclick = () => selectOption(question.key, option.value);
+        optionsContainer.appendChild(optionCard);
+    });
 
     // 戻るボタン表示
     const backBtn = document.getElementById('backBtn');
@@ -158,55 +126,6 @@ function showQuestion(index) {
         backBtn.onclick = () => showQuestion(index - 1);
     } else {
         backBtn.style.display = 'none';
-    }
-}
-
-// ========================================
-// ユーザー入力を分析
-// ========================================
-function analyzeUserInput(input) {
-    console.log('🔍 入力を分析:', input);
-    
-    const text = input.toLowerCase();
-    
-    // ゲームタイプを推測
-    const gameTypeKeywords = {
-        'avoid': ['逃げ', 'にげ', '避け', 'さけ', '鬼ごっこ', 'おにごっこ', 'ランゲー', '走る', 'はしる'],
-        'catch': ['集め', 'あつめ', 'キャッチ', 'きゃっち', '取る', 'とる', '拾う', 'ひろう', 'ポケモン', 'ぽけもん'],
-        'shoot': ['撃つ', 'うつ', 'シュート', 'しゅーと', '攻撃', 'こうげき', '倒す', 'たおす', 'シューティング'],
-        'jump': ['ジャンプ', 'じゃんぷ', '飛ぶ', 'とぶ', 'マリオ', 'まりお', 'タイミング', 'たいみんぐ'],
-        'breakout': ['ブロック', 'ぶろっく', '崩し', 'くずし', 'breakout'],
-        'memory': ['神経衰弱', 'しんけいすいじゃく', '記憶', 'きおく', 'カード', 'かーど', 'めくる', 'メモリー'],
-        'puzzle': ['パズル', 'ぱずる', 'スライド', 'すらいど', '並べ', 'ならべ'],
-        'clicker': ['クリック', 'くりっく', 'タップ', 'たっぷ', '連打', 'れんだ', 'クリッカー']
-    };
-
-    for (const [type, keywords] of Object.entries(gameTypeKeywords)) {
-        if (keywords.some(keyword => text.includes(keyword))) {
-            userSelections.gameType = type;
-            console.log('✅ ゲームタイプ推測:', type);
-            break;
-        }
-    }
-
-    // アイテムを推測
-    const itemKeywords = {
-        'apple': ['りんご', 'リンゴ', '林檎', 'apple'],
-        'star': ['星', 'ほし', 'スター', 'star'],
-        'coin': ['コイン', 'こいん', 'coin', 'お金', 'おかね'],
-        'heart': ['ハート', 'はーと', '心', 'heart', 'こころ'],
-        'candy': ['キャンディ', 'きゃんでぃ', '飴', 'あめ', 'candy'],
-        'ball': ['ボール', 'ぼーる', 'ball', '球', 'きゅう'],
-        'flower': ['花', 'はな', 'フラワー', 'flower'],
-        'diamond': ['ダイヤ', 'だいや', 'ダイヤモンド', 'diamond', '宝石', 'ほうせき']
-    };
-
-    for (const [item, keywords] of Object.entries(itemKeywords)) {
-        if (keywords.some(keyword => text.includes(keyword))) {
-            userSelections.item = item;
-            console.log('✅ アイテム推測:', item);
-            break;
-        }
     }
 }
 
@@ -232,7 +151,7 @@ function selectOption(key, value) {
 // 結果表示
 // ========================================
 function showResult() {
-    console.log('🎉 結果表示:', { userInput, userSelections });
+    console.log('🎉 結果表示:', userSelections);
 
     // クイズセクションを非表示
     document.getElementById('quizSection').style.display = 'none';
@@ -263,21 +182,14 @@ function showResult() {
         'sunset': 'ゆうやけ', 'night': 'よる'
     };
 
-    const itemNames = {
-        'apple': 'リンゴ', 'star': 'ほし', 'coin': 'コイン', 'heart': 'ハート',
-        'candy': 'キャンディ', 'ball': 'ボール', 'flower': 'はな', 'diamond': 'ダイヤ'
-    };
-
     const difficultyNames = {
         'easy': 'かんたん', 'normal': 'ふつう', 'hard': 'むずかしい'
     };
 
     // 結果を表示
-    document.getElementById('resultInput').textContent = userInput;
-    document.getElementById('resultGame').textContent = userSelections.gameType ? (gameNames[userSelections.gameType] || 'おまかせ') : 'おまかせ';
+    document.getElementById('resultGame').textContent = gameNames[userSelections.gameType] || '???';
     document.getElementById('resultColor').textContent = colorNames[userSelections.color] || '???';
     document.getElementById('resultPlace').textContent = placeNames[userSelections.place] || '???';
-    document.getElementById('resultItem').textContent = userSelections.item ? (itemNames[userSelections.item] || 'おまかせ') : 'おまかせ';
     document.getElementById('resultLevel').textContent = difficultyNames[userSelections.difficulty] || '???';
 
     // 遊ぶボタン
@@ -288,10 +200,10 @@ function showResult() {
 // ゲーム生成
 // ========================================
 async function generateGameFromSelections() {
-    console.log('🎮 ゲーム生成開始:', { userInput, userSelections });
+    console.log('🎮 ゲーム生成開始:', userSelections);
 
     // プロンプトを生成
-    const prompt = buildPromptFromSelections(userInput, userSelections);
+    const prompt = buildPromptFromSelections(userSelections);
     console.log('📝 生成されたプロンプト:', prompt);
 
     // 結果セクションを非表示
@@ -333,11 +245,18 @@ async function generateGameFromSelections() {
 // ========================================
 // プロンプト生成
 // ========================================
-function buildPromptFromSelections(input, selections) {
-    // ユーザー入力をベースにする
-    let prompt = input;
+function buildPromptFromSelections(selections) {
+    const gameTypeMap = {
+        'avoid': '逃げるゲーム',
+        'catch': '集めるゲーム',
+        'shoot': 'シューティングゲーム',
+        'jump': 'ジャンプゲーム',
+        'breakout': 'ブロック崩しゲーム',
+        'memory': '神経衰弱ゲーム',
+        'puzzle': 'スライドパズルゲーム',
+        'clicker': 'クリッカーゲーム'
+    };
 
-    // 場所を追加
     const placeMap = {
         'space': '宇宙',
         'ocean': '海',
@@ -346,21 +265,17 @@ function buildPromptFromSelections(input, selections) {
         'night': '夜'
     };
 
-    if (selections.place) {
-        prompt += ` ${placeMap[selections.place]}`;
-    }
-
-    // 難易度を追加
     const difficultyMap = {
         'easy': '簡単',
         'normal': '普通',
         'hard': '難しい'
     };
 
-    if (selections.difficulty) {
-        prompt += ` ${difficultyMap[selections.difficulty]}`;
-    }
+    const gameType = gameTypeMap[selections.gameType] || 'ゲーム';
+    const place = placeMap[selections.place] || '';
+    const difficulty = difficultyMap[selections.difficulty] || '';
 
+    let prompt = `${place}で${gameType} ${difficulty}`;
     return prompt.trim();
 }
 
