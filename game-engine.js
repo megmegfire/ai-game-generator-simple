@@ -1,4 +1,54 @@
-// ===== AI風ゲーム生成エンジン =====
+// ===== AI風ゲーム生成エンジン v2 =====
+// アイテム認識機能を追加
+
+// アイテム定義（プロンプトから自動認識）
+const ITEMS = {
+    apple: { 
+        keywords: ['りんご', 'リンゴ', '林檎', 'apple'], 
+        color: '#ff0000', 
+        name: 'リンゴ' 
+    },
+    star: { 
+        keywords: ['星', 'ほし', 'スター', 'star'], 
+        color: '#ffff00', 
+        name: '星' 
+    },
+    coin: { 
+        keywords: ['コイン', 'こいん', 'coin', 'お金'], 
+        color: '#ffd700', 
+        name: 'コイン' 
+    },
+    heart: { 
+        keywords: ['ハート', 'はーと', '心', 'heart'], 
+        color: '#ff69b4', 
+        name: 'ハート' 
+    },
+    orange: { 
+        keywords: ['オレンジ', 'おれんじ', 'みかん', 'orange'], 
+        color: '#ff8c00', 
+        name: 'オレンジ' 
+    },
+    grape: { 
+        keywords: ['ぶどう', 'ブドウ', '葡萄', 'grape'], 
+        color: '#9370db', 
+        name: 'ブドウ' 
+    },
+    diamond: { 
+        keywords: ['ダイヤ', 'だいや', 'ダイヤモンド', 'diamond'], 
+        color: '#00ffff', 
+        name: 'ダイヤ' 
+    },
+    cherry: { 
+        keywords: ['さくらんぼ', 'サクランボ', 'チェリー', 'cherry'], 
+        color: '#dc143c', 
+        name: 'さくらんぼ' 
+    },
+    gem: { 
+        keywords: ['宝石', 'ジュエル', 'gem', 'jewel'], 
+        color: '#ff1493', 
+        name: '宝石' 
+    }
+};
 
 // ゲームテンプレート定義
 const GAME_TEMPLATES = {
@@ -109,7 +159,7 @@ gameLoop();
         name: 'キャッチゲー',
         keywords: ['キャッチ', '取る', '集める', '拾う', 'catch', 'collect'],
         template: `
-// キャッチゲー
+// キャッチゲー - {{ITEM_NAME}}を集めよう！
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -177,9 +227,11 @@ function gameLoop() {
     items.forEach((item, index) => {
         item.y += item.speed;
         
-        // アイテム描画
+        // アイテム描画（{{ITEM_NAME}}）
         ctx.fillStyle = '{{ITEM_COLOR}}';
-        ctx.fillRect(item.x, item.y, item.width, item.height);
+        ctx.beginPath();
+        ctx.arc(item.x + 15, item.y + 15, 15, 0, Math.PI * 2);
+        ctx.fill();
 
         // キャッチ判定
         if (item.x < player.x + player.width &&
@@ -199,8 +251,9 @@ function gameLoop() {
     // UI表示
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
-    ctx.fillText('Score: ' + score, 10, 30);
-    ctx.fillText('Time: ' + timeLeft + 's', 10, 60);
+    ctx.fillText('{{ITEM_NAME}}をキャッチ！', 10, 30);
+    ctx.fillText('Score: ' + score, 10, 60);
+    ctx.fillText('Time: ' + timeLeft + 's', 10, 90);
 
     requestAnimationFrame(gameLoop);
 }
@@ -306,7 +359,7 @@ function gameLoop() {
             if (bullet.x < enemy.x + enemy.width &&
                 bullet.x + bullet.width > enemy.x &&
                 bullet.y < enemy.y + enemy.height &&
-                bullet.y + bullet.height > enemy.y) {
+                bullet.y + enemy.height > enemy.y) {
                 enemies.splice(eIndex, 1);
                 bullets.splice(bIndex, 1);
                 score++;
@@ -366,8 +419,23 @@ const DIFFICULTY = {
     hard: { speed: 6, spawnRate: 1000 }
 };
 
+// プロンプトからアイテムを認識
+function detectItem(prompt) {
+    prompt = prompt.toLowerCase();
+    
+    for (const [key, item] of Object.entries(ITEMS)) {
+        if (item.keywords.some(keyword => prompt.includes(keyword))) {
+            return { key: key, color: item.color, name: item.name };
+        }
+    }
+    
+    // デフォルトは星
+    return { key: 'star', color: ITEMS.star.color, name: ITEMS.star.name };
+}
+
 // プロンプトを解析してゲームを生成
 function generateGame(prompt) {
+    const originalPrompt = prompt;
     prompt = prompt.toLowerCase();
     
     // ゲームタイプを判定
@@ -391,6 +459,9 @@ function generateGame(prompt) {
     if (prompt.includes('簡単') || prompt.includes('easy') || prompt.includes('ゆっくり')) difficulty = 'easy';
     else if (prompt.includes('難しい') || prompt.includes('hard') || prompt.includes('速い')) difficulty = 'hard';
     
+    // アイテムを認識（キャッチゲーの場合）
+    const detectedItem = detectItem(prompt);
+    
     // テンプレートを取得
     let code = GAME_TEMPLATES[gameType].template;
     const colors = THEMES[theme];
@@ -400,7 +471,11 @@ function generateGame(prompt) {
     code = code.replace(/{{BACKGROUND}}/g, colors.background);
     code = code.replace(/{{PLAYER_COLOR}}/g, colors.player);
     code = code.replace(/{{OBSTACLE_COLOR}}/g, colors.obstacle);
-    code = code.replace(/{{ITEM_COLOR}}/g, colors.item);
+    
+    // アイテム色を置換（プロンプトから認識した色を使用）
+    code = code.replace(/{{ITEM_COLOR}}/g, detectedItem.color);
+    code = code.replace(/{{ITEM_NAME}}/g, detectedItem.name);
+    
     code = code.replace(/{{ENEMY_COLOR}}/g, colors.enemy);
     code = code.replace(/{{SPEED}}/g, settings.speed);
     code = code.replace(/{{SPAWN_RATE}}/g, settings.spawnRate);
@@ -409,7 +484,8 @@ function generateGame(prompt) {
         code: code,
         type: GAME_TEMPLATES[gameType].name,
         theme: theme,
-        difficulty: difficulty
+        difficulty: difficulty,
+        item: detectedItem.name  // 認識されたアイテム名
     };
 }
 
