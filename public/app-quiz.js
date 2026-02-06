@@ -98,12 +98,6 @@ function showQuestion(index) {
     // 質問タイトル
     document.getElementById('questionTitle').innerHTML = question.title;
 
-    // サブタイトルを非表示
-    const subtitleEl = document.getElementById('questionSubtitle');
-    if (subtitleEl) {
-        subtitleEl.style.display = 'none';
-    }
-
     // 選択肢を生成
     const optionsContainer = document.getElementById('optionsContainer');
     optionsContainer.innerHTML = '';
