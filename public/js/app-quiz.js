@@ -96,7 +96,7 @@ function showQuestion(index) {
     // サブタイトル
     const subtitleEl = document.getElementById('questionSubtitle');
     if (question.subtitle) {
-        subtitleEl.innerHTML = question.subtitle;
+        document.getElementById('questionTitle').innerHTML = question.title;
         subtitleEl.style.display = 'block';
     } else {
         subtitleEl.style.display = 'none';
