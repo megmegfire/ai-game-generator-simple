@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AIゲームジェネレーター - しつもんでゲームをつくろう</title>
+    <link rel="stylesheet" href="css/style-quiz.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🎮 AI<ruby>ゲーム<rt>げーむ</rt></ruby>ジェネレーター</h1>
+            <p class="tagline"><ruby>しつもん<rt>質問</rt></ruby>に<ruby>こた<rt>答</rt></ruby>えて<ruby>じぶん<rt>自分</rt></ruby>だけの<ruby>げーむ<rt>ゲーム</rt></ruby>をつくろう！</p>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="container">
+        <!-- クイズセクション -->
+        <section id="quizSection" class="quiz-section">
+            <!-- プログレスバー -->
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span id="progressText">ステップ <span id="currentStep">1</span> / 5</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 20%;"></div>
+                </div>
+            </div>
+
+            <!-- 質問カード -->
+            <div class="quiz-card">
+                <h2 id="questionTitle" class="question-title">あなたの<ruby>す<rt>好</rt></ruby>きなものは？</h2>
+                
+                <!-- 選択肢コンテナ -->
+                <div id="optionsContainer" class="options-container">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+
+                <!-- 戻るボタン -->
+                <button id="backBtn" class="btn-back" style="display: none;">
+                    ← <ruby>もど<rt>戻</rt></ruby>る
+                </button>
+            </div>
+        </section>
+
+        <!-- 結果表示セクション -->
+        <section id="resultSection" class="result-section" style="display: none;">
+            <div class="result-card">
+                <h2 class="result-title">🎉 あなただけのゲームができたよ！</h2>
+                
+                <div class="result-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">ゲーム:</span>
+                        <span id="resultGame" class="summary-value"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label"><ruby>いろ<rt>色</rt></ruby>:</span>
+                        <span id="resultColor" class="summary-value"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label"><ruby>ばしょ<rt>場所</rt></ruby>:</span>
+                        <span id="resultPlace" class="summary-value"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">アイテム:</span>
+                        <span id="resultItem" class="summary-value"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">レベル:</span>
+                        <span id="resultLevel" class="summary-value"></span>
+                    </div>
+                </div>
+
+                <button id="playBtn" class="btn-play">
+                    🎮 さあ、<ruby>あそ<rt>遊</rt></ruby>んでみよう！
+                </button>
+            </div>
+        </section>
+
+        <!-- ゲーム表示セクション -->
+        <section id="gameSection" class="game-section" style="display: none;">
+            <div class="card">
+                <div class="game-header">
+                    <div>
+                        <h2 id="gameTitle">🎉 <ruby>せいせい<rt>生成</rt></ruby>されたゲーム</h2>
+                        <p id="gameDescription" class="game-description"></p>
+                    </div>
+                    <button id="newGameBtn" class="btn-secondary">🔄 <ruby>あたら<rt>新</rt></ruby>しいゲームを<ruby>つく<rt>作</rt></ruby>る</button>
+                </div>
+
+                <!-- ゲームキャンバス -->
+                <div class="game-container">
+                    <canvas id="gameCanvas" width="800" height="600"></canvas>
+                </div>
+
+                <!-- 操作説明 -->
+                <div class="game-controls">
+                    <h3>🎮 <ruby>そうさ<rt>操作</rt></ruby>ほうほう</h3>
+                    <ul>
+                        <li><strong>スマホ</strong>: <ruby>がめん<rt>画面</rt></ruby>の<ruby>ひだり<rt>左</rt></ruby>/<ruby>みぎ<rt>右</rt></ruby>をタップで<ruby>いどう<rt>移動</rt></ruby></li>
+                        <li><strong>パソコン</strong>: <ruby>やじるし<rt>矢印</rt></ruby>キー（←→）で<ruby>いどう<rt>移動</rt></ruby></li>
+                        <li><strong>ジャンプ/シュート</strong>: <ruby>がめん<rt>画面</rt></ruby>をタップ または スペースキー</li>
+                        <li><strong>R キー</strong>: リスタート</li>
+                    </ul>
+                </div>
+
+                <!-- アクション -->
+                <div class="game-actions">
+                    <button id="fullscreenBtn" class="btn-primary">
+                        📺 フルスクリーン
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <p>APIキー<ruby>ふよう<rt>不要</rt></ruby>で<ruby>かんぜん<rt>完全</rt></ruby><ruby>むりょう<rt>無料</rt></ruby> 🎮 | <ruby>しゅんじ<rt>瞬時</rt></ruby>にゲームを<ruby>せいせい<rt>生成</rt></ruby></p>
+    </footer>
+
+    <script src="js/app-quiz.js"></script>
+</body>
+</html>
