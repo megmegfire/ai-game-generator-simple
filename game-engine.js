@@ -1,5 +1,5 @@
-// ===== AI風ゲーム生成エンジン v2 =====
-// アイテム認識機能を追加
+// ===== AI風ゲーム生成エンジン v3 =====
+// アイテム認識機能 + IIFE でスコープ分離
 
 // アイテム定義（プロンプトから自動認識）
 const ITEMS = {
@@ -56,7 +56,8 @@ const GAME_TEMPLATES = {
         name: '避けゲー',
         keywords: ['避ける', 'よける', '逃げる', 'dodge', 'avoid'],
         template: `
-// 避けゲー
+// 避けゲー（IIFEでスコープ分離）
+(function() {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -81,7 +82,7 @@ function createObstacle() {
     });
 }
 
-setInterval(createObstacle, {{SPAWN_RATE}});
+const obstacleInterval = setInterval(createObstacle, {{SPAWN_RATE}});
 
 // ゲームループ
 function gameLoop() {
@@ -94,6 +95,7 @@ function gameLoop() {
         ctx.font = '30px Arial';
         ctx.fillText('Score: ' + score, 280, 300);
         ctx.fillText('Press R to Restart', 220, 350);
+        clearInterval(obstacleInterval);
         return;
     }
 
@@ -152,6 +154,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 gameLoop();
+})();
 `
     },
     
@@ -159,7 +162,8 @@ gameLoop();
         name: 'キャッチゲー',
         keywords: ['キャッチ', '取る', '集める', '拾う', 'catch', 'collect'],
         template: `
-// キャッチゲー - {{ITEM_NAME}}を集めよう！
+// キャッチゲー（IIFEでスコープ分離）
+(function() {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -187,13 +191,17 @@ function createItem() {
     }
 }
 
-setInterval(createItem, {{SPAWN_RATE}});
+const itemInterval = setInterval(createItem, {{SPAWN_RATE}});
 
 // タイマー
-setInterval(() => {
+const timerInterval = setInterval(() => {
     if (!gameOver) {
         timeLeft--;
-        if (timeLeft <= 0) gameOver = true;
+        if (timeLeft <= 0) {
+            gameOver = true;
+            clearInterval(itemInterval);
+            clearInterval(timerInterval);
+        }
     }
 }, 1000);
 
@@ -271,6 +279,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 gameLoop();
+})();
 `
     },
     
@@ -278,7 +287,8 @@ gameLoop();
         name: 'シューティング',
         keywords: ['撃つ', 'シュート', '攻撃', '倒す', 'shoot', 'attack'],
         template: `
-// シューティングゲーム
+// シューティングゲーム（IIFEでスコープ分離）
+(function() {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -311,7 +321,7 @@ function createEnemy() {
     }
 }
 
-setInterval(createEnemy, {{SPAWN_RATE}});
+const enemyInterval = setInterval(createEnemy, {{SPAWN_RATE}});
 
 // ゲームループ
 function gameLoop() {
@@ -328,6 +338,7 @@ function gameLoop() {
         ctx.font = '30px Arial';
         ctx.fillText('Score: ' + score, 280, 300);
         ctx.fillText('Press R to Restart', 220, 350);
+        clearInterval(enemyInterval);
         return requestAnimationFrame(gameLoop);
     }
 
@@ -359,7 +370,7 @@ function gameLoop() {
             if (bullet.x < enemy.x + enemy.width &&
                 bullet.x + bullet.width > enemy.x &&
                 bullet.y < enemy.y + enemy.height &&
-                bullet.y + enemy.height > enemy.y) {
+                bullet.y + bullet.height > enemy.y) {
                 enemies.splice(eIndex, 1);
                 bullets.splice(bIndex, 1);
                 score++;
@@ -399,6 +410,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 gameLoop();
+})();
 `
     }
 };
