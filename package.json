@@ -1,0 +1,23 @@
+{
+  "name": "ai-game-generator-simple",
+  "version": "1.0.0",
+  "description": "AI風ゲーム生成サイト（シンプル版・APIキー不要）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["game", "generator", "AI"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
