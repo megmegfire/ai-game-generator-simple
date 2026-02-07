@@ -7,6 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>AI Game Generator - プロンプトでゲームを生成</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/virtual-controls.css">
 </head>
 <body>
     <!-- ヘッダー -->
@@ -22,20 +23,20 @@
         <!-- プロンプト入力セクション -->
         <section class="prompt-section">
             <div class="card">
-                <h2>✨ げーむをせいせいしよう</h2>
+                <h2>✨ ゲームをせいせいしよう</h2>
 
                 <!-- ゲームの種類 -->
                 <div class="selection-group">
-                    <h3>げーむのしゅるいをえらんでね</h3>
+                    <h3>ゲームのしゅるいをえらんでね</h3>
                     <div class="button-grid">
                         <button class="select-btn" data-type="gameType" data-value="avoid">🏃 にげる</button>
                         <button class="select-btn" data-type="gameType" data-value="catch">🍎 あつめる</button>
-                        <button class="select-btn" data-type="gameType" data-value="shoot">💣 しゅーてぃんぐ</button>
+                        <button class="select-btn" data-type="gameType" data-value="shoot">💣 シューティング</button>
                         <button class="select-btn" data-type="gameType" data-value="memory">🃏 しんけいすいじゃく</button>
-                        <button class="select-btn" data-type="gameType" data-value="breakout">🧱 ぶろっくくずし</button>
-                        <button class="select-btn" data-type="gameType" data-value="puzzle">🧩 ぱずる</button>
-                        <button class="select-btn" data-type="gameType" data-value="clicker">👆 くりっかー</button>
-                        <button class="select-btn" data-type="gameType" data-value="jump">🐦 じゃんぷ</button>
+                        <button class="select-btn" data-type="gameType" data-value="breakout">🧱 ブロックくずし</button>
+                        <button class="select-btn" data-type="gameType" data-value="puzzle">🧩 パズル</button>
+                        <button class="select-btn" data-type="gameType" data-value="clicker">👆 クリッカー</button>
+                        <button class="select-btn" data-type="gameType" data-value="jump">🐦 ジャンプ</button>
                     </div>
                 </div>
 
@@ -48,15 +49,15 @@
                         <button class="select-btn color-btn" data-type="color" data-value="green" style="background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);">🟢 みどり</button>
                         <button class="select-btn color-btn" data-type="color" data-value="yellow" style="background: linear-gradient(135deg, #ffd93d 0%, #f9ca24 100%);">🟡 きいろ</button>
                         <button class="select-btn color-btn" data-type="color" data-value="purple" style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);">🟣 むらさき</button>
-                        <button class="select-btn color-btn" data-type="color" data-value="pink" style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);">🩷 ぴんく</button>
-                        <button class="select-btn color-btn" data-type="color" data-value="orange" style="background: linear-gradient(135deg, #ff9f43 0%, #ee5a24 100%);">🟠 おれんじ</button>
+                        <button class="select-btn color-btn" data-type="color" data-value="pink" style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);">🩷 ピンク</button>
+                        <button class="select-btn color-btn" data-type="color" data-value="orange" style="background: linear-gradient(135deg, #ff9f43 0%, #ee5a24 100%);">🟠 オレンジ</button>
                         <button class="select-btn color-btn" data-type="color" data-value="white" style="background: linear-gradient(135deg, #f1f2f6 0%, #dfe6e9 100%); color: #2d3436;">⚪ しろ</button>
                     </div>
                 </div>
 
                 <!-- ステージの選択 -->
                 <div class="selection-group">
-                    <h3>すてーじをえらんでね</h3>
+                    <h3>ステージをえらんでね</h3>
                     <div class="button-grid">
                         <button class="select-btn" data-type="place" data-value="space">🚀 うちゅう</button>
                         <button class="select-btn" data-type="place" data-value="ocean">🌊 うみ</button>
@@ -78,7 +79,7 @@
 
                 <!-- 生成ボタン -->
                 <button id="generateBtn" class="generate-btn-big">
-                    <span class="btn-text">🎮 げーむを生成！</span>
+                    <span class="btn-text">🎮 ゲームを生成！</span>
                     <span class="btn-loading" style="display: none;">
                         <span class="spinner"></span> 生成ちゅう...
                     </span>
@@ -103,15 +104,34 @@
                 <!-- ゲームキャンバス -->
                 <div class="game-container">
                     <canvas id="gameCanvas" width="800" height="600"></canvas>
+                    
+                    <!-- スマホ用仮想コントローラー -->
+                    <div id="virtualControls" class="virtual-controls">
+                        <!-- 左右移動ボタン -->
+                        <div class="move-controls">
+                            <button id="leftBtn" class="control-btn move-btn">
+                                <span class="arrow">◀</span>
+                            </button>
+                            <button id="rightBtn" class="control-btn move-btn">
+                                <span class="arrow">▶</span>
+                            </button>
+                        </div>
+                        
+                        <!-- ジャンプ/アクションボタン -->
+                        <div class="action-controls">
+                            <button id="actionBtn" class="control-btn action-btn">
+                                <span class="action-icon">🎯</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 操作説明 -->
                 <div class="game-controls">
                     <h3>🎮 そうさほうほう</h3>
                     <ul>
-                        <li><strong>スマホ</strong>: がめんのひだり/みぎをタップでいどう</li>
-                        <li><strong>パソコン</strong>: やじるしキー（←→）でいどう</li>
-                        <li><strong>ジャンプ/シュート</strong>: がめんをタップ または スペースキー</li>
+                        <li><strong>スマホ</strong>: がめん上のボタンでそうさ</li>
+                        <li><strong>パソコン</strong>: ←→ でいどう、スペースでアクション</li>
                         <li><strong>R キー</strong>: リスタート</li>
                     </ul>
                 </div>
