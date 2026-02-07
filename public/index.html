@@ -23,54 +23,64 @@
         <section class="prompt-section">
             <div class="card">
                 <h2>✨ ゲームを生成しよう</h2>
-                <p class="description">
-                    作りたいゲームを日本語で説明してください。AIが自動的にゲームを生成します！
-                </p>
 
-                <!-- プロンプト入力 -->
-                <div class="input-group">
-                    <label for="promptInput">ゲームの説明</label>
-                    <textarea 
-                        id="promptInput" 
-                        placeholder="例: 宇宙船を操作して隕石を避けるゲーム"
-                        rows="3"
-                    ></textarea>
+                <!-- ゲームの種類 -->
+                <div class="selection-group">
+                    <h3>ゲームの<ruby>しゅるい<rt>種類</rt></ruby>を<ruby>えら<rt>選</rt></ruby>んでね</h3>
+                    <div class="button-grid">
+                        <button class="select-btn" data-type="gameType" data-value="avoid">🏃 <ruby>に<rt>逃</rt></ruby>げる</button>
+                        <button class="select-btn" data-type="gameType" data-value="catch">🍎 <ruby>あつ<rt>集</rt></ruby>める</button>
+                        <button class="select-btn" data-type="gameType" data-value="shoot">💣 シューティング</button>
+                        <button class="select-btn" data-type="gameType" data-value="memory">🃏 <ruby>しんけいすいじゃく<rt>神経衰弱</rt></ruby></button>
+                        <button class="select-btn" data-type="gameType" data-value="breakout">🧱 ブロック<ruby>くず<rt>崩</rt></ruby>し</button>
+                        <button class="select-btn" data-type="gameType" data-value="puzzle">🧩 パズル</button>
+                        <button class="select-btn" data-type="gameType" data-value="clicker">👆 クリッカー</button>
+                        <button class="select-btn" data-type="gameType" data-value="jump">🐦 ジャンプ</button>
+                    </div>
                 </div>
 
-                <!-- サンプルプロンプト -->
-                <div class="sample-prompts">
-                    <p class="sample-label">💡 サンプル（8種類のゲーム）:</p>
-                    <button class="sample-btn" data-prompt="宇宙船を操作して隕石を避けるゲーム">
-                        🚀 避けゲー
-                    </button>
-                    <button class="sample-btn" data-prompt="リンゴをキャッチするゲーム">
-                        🍎 キャッチゲー
-                    </button>
-                    <button class="sample-btn" data-prompt="敵を撃って倒すシューティングゲーム">
-                        💣 シューティング
-                    </button>
-                    <button class="sample-btn" data-prompt="神経衰弱ゲーム">
-                        🃏 神経衰弱
-                    </button>
-                    <button class="sample-btn" data-prompt="ブロック崩しゲーム">
-                        🧱 ブロック崩し
-                    </button>
-                    <button class="sample-btn" data-prompt="スライドパズルゲーム">
-                        🧩 パズル
-                    </button>
-                    <button class="sample-btn" data-prompt="クリッカーゲーム">
-                        👆 クリッカー
-                    </button>
-                    <button class="sample-btn" data-prompt="ジャンプゲーム">
-                        🐦 ジャンプ
-                    </button>
+                <!-- 色の選択 -->
+                <div class="selection-group">
+                    <h3><ruby>す<rt>好</rt></ruby>きな<ruby>いろ<rt>色</rt></ruby>を<ruby>えら<rt>選</rt></ruby>んでね</h3>
+                    <div class="button-grid">
+                        <button class="select-btn color-btn" data-type="color" data-value="red" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">🔴 <ruby>あか<rt>赤</rt></ruby></button>
+                        <button class="select-btn color-btn" data-type="color" data-value="blue" style="background: linear-gradient(135deg, #4d96ff 0%, #6c5ce7 100%);">🔵 <ruby>あお<rt>青</rt></ruby></button>
+                        <button class="select-btn color-btn" data-type="color" data-value="green" style="background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);">🟢 <ruby>みどり<rt>緑</rt></ruby></button>
+                        <button class="select-btn color-btn" data-type="color" data-value="yellow" style="background: linear-gradient(135deg, #ffd93d 0%, #f9ca24 100%);">🟡 <ruby>きいろ<rt>黄色</rt></ruby></button>
+                        <button class="select-btn color-btn" data-type="color" data-value="purple" style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);">🟣 <ruby>むらさき<rt>紫</rt></ruby></button>
+                        <button class="select-btn color-btn" data-type="color" data-value="pink" style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);">🩷 ピンク</button>
+                        <button class="select-btn color-btn" data-type="color" data-value="orange" style="background: linear-gradient(135deg, #ff9f43 0%, #ee5a24 100%);">🟠 オレンジ</button>
+                        <button class="select-btn color-btn" data-type="color" data-value="white" style="background: linear-gradient(135deg, #f1f2f6 0%, #dfe6e9 100%); color: #2d3436;">⚪ <ruby>しろ<rt>白</rt></ruby></button>
+                    </div>
+                </div>
+
+                <!-- ステージの選択 -->
+                <div class="selection-group">
+                    <h3>ステージを<ruby>えら<rt>選</rt></ruby>んでね</h3>
+                    <div class="button-grid">
+                        <button class="select-btn" data-type="place" data-value="space">🚀 <ruby>うちゅう<rt>宇宙</rt></ruby></button>
+                        <button class="select-btn" data-type="place" data-value="ocean">🌊 <ruby>うみ<rt>海</rt></ruby></button>
+                        <button class="select-btn" data-type="place" data-value="forest">🌲 <ruby>もり<rt>森</rt></ruby></button>
+                        <button class="select-btn" data-type="place" data-value="sunset">🌅 <ruby>ゆうや<rt>夕焼</rt></ruby>け</button>
+                        <button class="select-btn" data-type="place" data-value="night">🌙 <ruby>よる<rt>夜</rt></ruby></button>
+                    </div>
+                </div>
+
+                <!-- 難易度の選択 -->
+                <div class="selection-group">
+                    <h3><ruby>むずか<rt>難</rt></ruby>しさを<ruby>えら<rt>選</rt></ruby>んでね</h3>
+                    <div class="button-grid">
+                        <button class="select-btn" data-type="difficulty" data-value="easy">😊 かんたん</button>
+                        <button class="select-btn" data-type="difficulty" data-value="normal">😐 ふつう</button>
+                        <button class="select-btn" data-type="difficulty" data-value="hard">😤 むずかしい</button>
+                    </div>
                 </div>
 
                 <!-- 生成ボタン -->
-                <button id="generateBtn" class="generate-btn">
-                    <span class="btn-text">🎮 ゲームを生成</span>
+                <button id="generateBtn" class="generate-btn-big">
+                    <span class="btn-text">🎮 ゲームを<ruby>せいせい<rt>生成</rt></ruby>！</span>
                     <span class="btn-loading" style="display: none;">
-                        <span class="spinner"></span> 生成中...
+                        <span class="spinner"></span> <ruby>せいせい<rt>生成</rt></ruby><ruby>ちゅう<rt>中</rt></ruby>...
                     </span>
                 </button>
 
@@ -99,9 +109,10 @@
                 <div class="game-controls">
                     <h3>🎮 操作方法</h3>
                     <ul>
-                        <li><strong>矢印キー（←→）</strong> または <strong>A/D</strong>: 左右に移動</li>
-                        <li><strong>スペースキー</strong>: 発射（シューティングゲームの場合）</li>
-                        <li><strong>R キー</strong>: ゲームをリスタート</li>
+                        <li><strong>スマホ</strong>: 画面の左/右をタップで移動</li>
+                        <li><strong>パソコン</strong>: 矢印キー（←→）で移動</li>
+                        <li><strong>ジャンプ/シュート</strong>: 画面をタップ または スペースキー</li>
+                        <li><strong>R キー</strong>: リスタート</li>
                     </ul>
                 </div>
 
