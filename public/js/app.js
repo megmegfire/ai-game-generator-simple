@@ -1,274 +1,314 @@
-// ===== 設定 =====
+// ========================================
+// グローバル変数
+// ========================================
+let userSelections = {
+    gameType: '',
+    color: '',
+    place: '',
+    difficulty: ''
+};
+
+// API設定
 const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000/api'
-  : '/api';
+    ? 'http://localhost:3000/api' 
+    : '/api';
 
-// ===== DOM要素の取得 =====
-const promptInput = document.getElementById('promptInput');
-const generateBtn = document.getElementById('generateBtn');
-const btnText = generateBtn.querySelector('.btn-text');
-const btnLoading = generateBtn.querySelector('.btn-loading');
-const errorMessage = document.getElementById('errorMessage');
-const gameSection = document.getElementById('gameSection');
-const gameTitle = document.getElementById('gameTitle');
-const gameDescription = document.getElementById('gameDescription');
-const fullscreenBtn = document.getElementById('fullscreenBtn');
-const newGameBtn = document.getElementById('newGameBtn');
-const gameGallery = document.getElementById('gameGallery');
-
-let currentGame = null;
-let activeScripts = [];
-
-// ===== 初期化 =====
+// ========================================
+// 初期化
+// ========================================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎮 AI Game Generator 起動');
-    
-    // イベントリスナー設定
-    setupEventListeners();
-    
-    // ギャラリーを読み込み
+    setupSelectionButtons();
+    setupGenerateButton();
+    setupGameEventListeners();
     loadGallery();
 });
 
-// ===== イベントリスナー設定 =====
-function setupEventListeners() {
-    // 生成ボタン
-    generateBtn.addEventListener('click', generateGame);
+// ========================================
+// 選択ボタンのセットアップ
+// ========================================
+function setupSelectionButtons() {
+    const selectBtns = document.querySelectorAll('.select-btn');
     
-    // Enter キーで生成
-    promptInput.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            generateGame();
-        }
-    });
-    
-    // サンプルプロンプト
-    document.querySelectorAll('.sample-btn').forEach(btn => {
+    selectBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            promptInput.value = btn.dataset.prompt;
-            promptInput.focus();
+            const type = btn.getAttribute('data-type');
+            const value = btn.getAttribute('data-value');
+            
+            // 同じタイプの他のボタンの選択を解除
+            document.querySelectorAll(`[data-type="${type}"]`).forEach(b => {
+                b.classList.remove('selected');
+            });
+            
+            // このボタンを選択
+            btn.classList.add('selected');
+            
+            // 選択を保存
+            userSelections[type] = value;
+            
+            console.log('選択:', type, '=', value);
+            console.log('現在の選択:', userSelections);
         });
     });
-    
-    // フルスクリーン
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    
-    // 新しいゲーム
-    newGameBtn.addEventListener('click', () => {
-        gameSection.style.display = 'none';
-        promptInput.value = '';
-        promptInput.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
 }
 
-// ===== 現在のゲームを停止 =====
-function stopCurrentGame() {
-    console.log('🛑 現在のゲームを停止');
+// ========================================
+// 生成ボタンのセットアップ
+// ========================================
+function setupGenerateButton() {
+    const generateBtn = document.getElementById('generateBtn');
     
-    // Canvas をクリア
-    const canvas = document.getElementById('gameCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    // 古いスクリプトタグを削除
-    activeScripts.forEach(script => {
-        if (script && script.parentNode) {
-            script.parentNode.removeChild(script);
+    generateBtn.addEventListener('click', async () => {
+        // すべて選択されているか確認
+        if (!userSelections.gameType || !userSelections.color || 
+            !userSelections.place || !userSelections.difficulty) {
+            showError('すべての項目を選択してください！');
+            return;
         }
+        
+        await generateGame();
     });
-    activeScripts = [];
 }
 
-// ===== ゲーム生成 =====
+// ========================================
+// ゲーム生成
+// ========================================
 async function generateGame() {
-    const prompt = promptInput.value.trim();
+    console.log('🎮 ゲーム生成開始:', userSelections);
     
-    // バリデーション
-    if (!prompt) {
-        showError('ゲームの説明を入力してください');
-        promptInput.focus();
-        return;
-    }
+    // プロンプトを生成
+    const prompt = buildPrompt(userSelections);
+    console.log('📝 生成されたプロンプト:', prompt);
     
-    if (prompt.length < 5) {
-        showError('もう少し詳しく説明してください（5文字以上）');
-        promptInput.focus();
-        return;
-    }
-    
-    // UIの状態変更
+    // ローディング開始
     setGenerating(true);
     hideError();
-    gameSection.style.display = 'none';
     
-    // 前のゲームを停止
-    stopCurrentGame();
-    
-    console.log('🎮 ゲーム生成開始:', prompt);
+    // ゲームセクションを非表示
+    document.getElementById('gameSection').style.display = 'none';
     
     try {
+        // API呼び出し
         const response = await fetch(`${API_BASE_URL}/generate`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ prompt })
         });
         
         const data = await response.json();
         
-        if (!response.ok || !data.success) {
+        if (!response.ok) {
             throw new Error(data.error || 'ゲーム生成に失敗しました');
         }
         
-        // ゲームを表示
-        displayGame(data.game);
-        
-        // ギャラリーを更新
-        loadGallery();
-        
-        console.log('✅ ゲーム生成成功');
+        if (data.success && data.game) {
+            displayGame(data.game);
+            loadGallery();
+        } else {
+            throw new Error('ゲームデータが取得できませんでした');
+        }
         
     } catch (error) {
-        console.error('❌ ゲーム生成エラー:', error);
-        showError(`ゲーム生成エラー: ${error.message}`);
+        console.error('❌ エラー:', error);
+        showError('ゲーム生成に失敗しました: ' + error.message);
     } finally {
         setGenerating(false);
     }
 }
 
-// ===== ゲーム表示 =====
-function displayGame(game) {
-    currentGame = game;
+// ========================================
+// プロンプト生成
+// ========================================
+function buildPrompt(selections) {
+    const gameTypeMap = {
+        'avoid': '逃げるゲーム',
+        'catch': '集めるゲーム',
+        'shoot': 'シューティングゲーム',
+        'jump': 'ジャンプゲーム',
+        'breakout': 'ブロック崩しゲーム',
+        'memory': '神経衰弱ゲーム',
+        'puzzle': 'スライドパズルゲーム',
+        'clicker': 'クリッカーゲーム'
+    };
     
-    // ゲーム情報を設定
-    gameTitle.textContent = `🎮 ${game.title}`;
-    gameDescription.textContent = game.description;
+    const placeMap = {
+        'space': '宇宙',
+        'ocean': '海',
+        'forest': '森',
+        'sunset': '夕焼け',
+        'night': '夜'
+    };
+    
+    const difficultyMap = {
+        'easy': '簡単',
+        'normal': '普通',
+        'hard': '難しい'
+    };
+    
+    const gameType = gameTypeMap[selections.gameType] || 'ゲーム';
+    const place = placeMap[selections.place] || '';
+    const difficulty = difficultyMap[selections.difficulty] || '';
+    
+    let prompt = `${place}で${gameType} ${difficulty}`;
+    return prompt.trim();
+}
+
+// ========================================
+// ゲーム表示
+// ========================================
+function displayGame(game) {
+    console.log('🎮 ゲーム表示:', game);
     
     // ゲームセクションを表示
+    const gameSection = document.getElementById('gameSection');
     gameSection.style.display = 'block';
+    
+    // タイトルと説明
+    document.getElementById('gameTitle').textContent = `🎉 ${game.title || 'ゲーム'}`;
+    document.getElementById('gameDescription').textContent = game.description || '';
     
     // スクロール
     gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // ゲームコードを実行（300ms後）
+    // ゲームコード実行（少し遅延）
     setTimeout(() => {
         executeGameCode(game.code);
     }, 300);
 }
 
-// ===== ゲームコードを実行 =====
+// ========================================
+// ゲームコード実行
+// ========================================
 function executeGameCode(code) {
-    console.log('🎮 ゲームコードを実行:', code.length, '文字');
-    
     try {
-        // Canvas を完全にリセット
-        const oldCanvas = document.getElementById('gameCanvas');
-        const newCanvas = document.createElement('canvas');
-        newCanvas.id = 'gameCanvas';
-        newCanvas.width = 800;
-        newCanvas.height = 600;
+        console.log('▶️ ゲームコード実行');
         
-        // 古い Canvas を置き換え
-        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+        // Canvasをリセット
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // コードを実行
+        // 古いCanvasを削除して新しいのを作る
+        const container = canvas.parentElement;
+        const newCanvas = canvas.cloneNode(true);
+        container.removeChild(canvas);
+        container.appendChild(newCanvas);
+        
+        // スクリプトタグを削除
+        const oldScripts = document.querySelectorAll('script[data-game-script]');
+        oldScripts.forEach(script => script.remove());
+        
+        // 新しいスクリプトを追加
         const script = document.createElement('script');
+        script.setAttribute('data-game-script', 'true');
         script.textContent = code;
         document.body.appendChild(script);
         
-        // スクリプトタグを記録（後で削除するため）
-        activeScripts.push(script);
-        
-        console.log('✅ ゲームコード実行完了');
+        console.log('✅ ゲーム起動成功');
         
     } catch (error) {
-        console.error('❌ ゲームコード実行エラー:', error);
-        showError(`ゲームの実行に失敗しました: ${error.message}`);
+        console.error('❌ ゲーム実行エラー:', error);
+        showError('ゲームの起動に失敗しました');
     }
 }
 
-// ===== フルスクリーン切替 =====
-function toggleFullscreen() {
-    const canvas = document.getElementById('gameCanvas');
-    if (!document.fullscreenElement) {
-        canvas.requestFullscreen().catch(err => {
-            console.error('フルスクリーンエラー:', err);
-        });
-    } else {
-        document.exitFullscreen();
-    }
+// ========================================
+// ゲームイベント
+// ========================================
+function setupGameEventListeners() {
+    // 新しいゲームボタン
+    document.getElementById('newGameBtn').onclick = () => {
+        location.reload();
+    };
+    
+    // フルスクリーンボタン
+    document.getElementById('fullscreenBtn').onclick = () => {
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas.requestFullscreen) {
+            canvas.requestFullscreen();
+        } else if (canvas.webkitRequestFullscreen) {
+            canvas.webkitRequestFullscreen();
+        }
+    };
 }
 
-// ===== ギャラリーを読み込み =====
+// ========================================
+// ギャラリー読み込み
+// ========================================
 async function loadGallery() {
     try {
         const response = await fetch(`${API_BASE_URL}/games`);
         const data = await response.json();
         
-        if (!data.success || !data.games || data.games.length === 0) {
-            gameGallery.innerHTML = '<p class="no-games">まだゲームが生成されていません</p>';
-            return;
-        }
+        const gallery = document.getElementById('gameGallery');
         
-        // ギャラリーを表示
-        gameGallery.innerHTML = data.games.map(game => `
-            <div class="game-card" data-id="${game.id}">
-                <h3>${game.title}</h3>
-                <p>${game.description}</p>
-                <div class="game-meta">
-                    <span>🎮 ${game.plays || 0} プレイ</span>
-                    <span>📅 ${new Date(game.createdAt).toLocaleDateString('ja-JP')}</span>
+        if (data.success && data.games && data.games.length > 0) {
+            gallery.innerHTML = data.games.map(game => `
+                <div class="gallery-item">
+                    <h4>${game.title}</h4>
+                    <p>${game.description || ''}</p>
+                    <div class="gallery-meta">
+                        <span>🎮 ${game.plays || 0} プレイ</span>
+                        <span>📅 ${new Date(game.created_at).toLocaleDateString('ja-JP')}</span>
+                    </div>
+                    <button class="btn-play" onclick="loadGame('${game.id}')">
+                        ▶️ プレイ
+                    </button>
                 </div>
-                <button class="btn-play" onclick="loadGame('${game.id}')">
-                    ▶️ プレイ
-                </button>
-            </div>
-        `).join('');
-        
+            `).join('');
+        } else {
+            gallery.innerHTML = '<p class="no-games">まだゲームが生成されていません</p>';
+        }
     } catch (error) {
-        console.error('❌ ギャラリー読み込みエラー:', error);
+        console.error('ギャラリー読み込みエラー:', error);
     }
 }
 
-// ===== ゲームを読み込み =====
+// ========================================
+// ゲームロード
+// ========================================
 async function loadGame(gameId) {
     try {
-        // 前のゲームを停止
-        stopCurrentGame();
-        
         const response = await fetch(`${API_BASE_URL}/games/${gameId}`);
         const data = await response.json();
         
-        if (!data.success || !data.game) {
-            throw new Error('ゲームが見つかりません');
+        if (data.success && data.game) {
+            displayGame(data.game);
         }
-        
-        displayGame(data.game);
-        
     } catch (error) {
-        console.error('❌ ゲーム読み込みエラー:', error);
-        showError(error.message);
+        console.error('ゲームロードエラー:', error);
+        showError('ゲームの読み込みに失敗しました');
     }
 }
 
-// ===== UIヘルパー関数 =====
+// ========================================
+// UIヘルパー
+// ========================================
 function setGenerating(isGenerating) {
-    generateBtn.disabled = isGenerating;
-    btnText.style.display = isGenerating ? 'none' : 'inline';
-    btnLoading.style.display = isGenerating ? 'inline' : 'none';
+    const generateBtn = document.getElementById('generateBtn');
+    const btnText = generateBtn.querySelector('.btn-text');
+    const btnLoading = generateBtn.querySelector('.btn-loading');
+    
+    if (isGenerating) {
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        generateBtn.disabled = true;
+    } else {
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        generateBtn.disabled = false;
+    }
 }
 
 function showError(message) {
-    errorMessage.textContent = `❌ ${message}`;
-    errorMessage.style.display = 'block';
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
 }
 
 function hideError() {
-    errorMessage.style.display = 'none';
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.style.display = 'none';
 }
-
-console.log('✅ app.js 読み込み完了');
