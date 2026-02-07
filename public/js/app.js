@@ -31,7 +31,10 @@ function setupSelectionButtons() {
     const selectBtns = document.querySelectorAll('.select-btn');
     
     selectBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        // クリック・タッチの両方に対応
+        const handleSelection = (e) => {
+            e.preventDefault(); // デフォルト動作を防止
+            
             const type = btn.getAttribute('data-type');
             const value = btn.getAttribute('data-value');
             
@@ -46,9 +49,13 @@ function setupSelectionButtons() {
             // 選択を保存
             userSelections[type] = value;
             
-            console.log('選択:', type, '=', value);
-            console.log('現在の選択:', userSelections);
-        });
+            console.log('✅ 選択:', type, '=', value);
+            console.log('📱 現在の選択:', userSelections);
+        };
+        
+        // タッチとクリックの両方をサポート
+        btn.addEventListener('touchstart', handleSelection, { passive: false });
+        btn.addEventListener('click', handleSelection);
     });
 }
 
@@ -58,7 +65,9 @@ function setupSelectionButtons() {
 function setupGenerateButton() {
     const generateBtn = document.getElementById('generateBtn');
     
-    generateBtn.addEventListener('click', async () => {
+    const handleGenerate = async (e) => {
+        e.preventDefault(); // デフォルト動作を防止
+        
         // すべて選択されているか確認
         if (!userSelections.gameType || !userSelections.color || 
             !userSelections.place || !userSelections.difficulty) {
@@ -67,7 +76,11 @@ function setupGenerateButton() {
         }
         
         await generateGame();
-    });
+    };
+    
+    // タッチとクリックの両方をサポート
+    generateBtn.addEventListener('touchstart', handleGenerate, { passive: false });
+    generateBtn.addEventListener('click', handleGenerate);
 }
 
 // ========================================
@@ -219,12 +232,18 @@ function executeGameCode(code) {
 // ========================================
 function setupGameEventListeners() {
     // 新しいゲームボタン
-    document.getElementById('newGameBtn').onclick = () => {
+    const newGameBtn = document.getElementById('newGameBtn');
+    const handleNewGame = (e) => {
+        e.preventDefault();
         location.reload();
     };
+    newGameBtn.addEventListener('touchstart', handleNewGame, { passive: false });
+    newGameBtn.addEventListener('click', handleNewGame);
     
     // フルスクリーンボタン
-    document.getElementById('fullscreenBtn').onclick = () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const handleFullscreen = (e) => {
+        e.preventDefault();
         const canvas = document.getElementById('gameCanvas');
         if (canvas.requestFullscreen) {
             canvas.requestFullscreen();
@@ -232,6 +251,8 @@ function setupGameEventListeners() {
             canvas.webkitRequestFullscreen();
         }
     };
+    fullscreenBtn.addEventListener('touchstart', handleFullscreen, { passive: false });
+    fullscreenBtn.addEventListener('click', handleFullscreen);
 }
 
 // ========================================
