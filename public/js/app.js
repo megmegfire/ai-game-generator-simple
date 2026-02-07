@@ -253,6 +253,9 @@ function setupGameEventListeners() {
     };
     fullscreenBtn.addEventListener('touchstart', handleFullscreen, { passive: false });
     fullscreenBtn.addEventListener('click', handleFullscreen);
+    
+    // 仮想コントローラーセットアップ
+    setupVirtualControls();
 }
 
 // ========================================
@@ -332,4 +335,81 @@ function showError(message) {
 function hideError() {
     const errorDiv = document.getElementById('errorMessage');
     errorDiv.style.display = 'none';
+}
+
+// ========================================
+// 仮想コントローラー (スマホ用)
+// ========================================
+function setupVirtualControls() {
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const actionBtn = document.getElementById('actionBtn');
+    
+    if (!leftBtn || !rightBtn || !actionBtn) {
+        console.log('⚠️ 仮想コントローラーのボタンが見つかりません');
+        return;
+    }
+    
+    console.log('🎮 仮想コントローラーをセットアップ');
+    
+    // 左ボタン
+    const handleLeft = (e) => {
+        e.preventDefault();
+        console.log('◀️ 左ボタン押下');
+        simulateKeyPress('ArrowLeft');
+    };
+    
+    leftBtn.addEventListener('touchstart', handleLeft, { passive: false });
+    leftBtn.addEventListener('mousedown', handleLeft);
+    
+    // 右ボタン
+    const handleRight = (e) => {
+        e.preventDefault();
+        console.log('▶️ 右ボタン押下');
+        simulateKeyPress('ArrowRight');
+    };
+    
+    rightBtn.addEventListener('touchstart', handleRight, { passive: false });
+    rightBtn.addEventListener('mousedown', handleRight);
+    
+    // アクションボタン (スペースキー)
+    const handleAction = (e) => {
+        e.preventDefault();
+        console.log('🎯 アクションボタン押下');
+        simulateKeyPress(' '); // スペースキー
+    };
+    
+    actionBtn.addEventListener('touchstart', handleAction, { passive: false });
+    actionBtn.addEventListener('mousedown', handleAction);
+}
+
+// キーボードイベントをシミュレート
+function simulateKeyPress(key) {
+    // keydown イベント
+    const keydownEvent = new KeyboardEvent('keydown', {
+        key: key,
+        code: key === 'ArrowLeft' ? 'ArrowLeft' : key === 'ArrowRight' ? 'ArrowRight' : 'Space',
+        keyCode: key === 'ArrowLeft' ? 37 : key === 'ArrowRight' ? 39 : 32,
+        which: key === 'ArrowLeft' ? 37 : key === 'ArrowRight' ? 39 : 32,
+        bubbles: true,
+        cancelable: true
+    });
+    
+    document.dispatchEvent(keydownEvent);
+    window.dispatchEvent(keydownEvent);
+    
+    // 少し遅延して keyup イベント
+    setTimeout(() => {
+        const keyupEvent = new KeyboardEvent('keyup', {
+            key: key,
+            code: key === 'ArrowLeft' ? 'ArrowLeft' : key === 'ArrowRight' ? 'ArrowRight' : 'Space',
+            keyCode: key === 'ArrowLeft' ? 37 : key === 'ArrowRight' ? 39 : 32,
+            which: key === 'ArrowLeft' ? 37 : key === 'ArrowRight' ? 39 : 32,
+            bubbles: true,
+            cancelable: true
+        });
+        
+        document.dispatchEvent(keyupEvent);
+        window.dispatchEvent(keyupEvent);
+    }, 100);
 }
