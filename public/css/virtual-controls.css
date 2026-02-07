@@ -1,0 +1,149 @@
+/* ========================================
+   仮想コントローラー (スマホ用)
+======================================== */
+
+.virtual-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* コントローラー以外はクリックを貫通 */
+    z-index: 100;
+}
+
+/* 移動ボタン (左下) */
+.move-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 15px;
+    pointer-events: auto;
+}
+
+/* アクションボタン (右下) */
+.action-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    pointer-events: auto;
+}
+
+/* 共通ボタンスタイル */
+.control-btn {
+    width: 70px;
+    height: 70px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.8);
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.control-btn:active {
+    background: rgba(102, 126, 234, 1);
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* 移動ボタン */
+.move-btn {
+    background: rgba(102, 126, 234, 0.7);
+}
+
+.move-btn:active {
+    background: rgba(102, 126, 234, 0.95);
+}
+
+/* アクションボタン */
+.action-btn {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 107, 107, 0.8);
+}
+
+.action-btn:active {
+    background: rgba(255, 107, 107, 1);
+}
+
+/* 矢印アイコン */
+.arrow {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* アクションアイコン */
+.action-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+/* パソコンでは非表示 */
+@media (min-width: 769px) {
+    .virtual-controls {
+        display: none;
+    }
+}
+
+/* スマホで表示 */
+@media (max-width: 768px) {
+    .virtual-controls {
+        display: block;
+    }
+    
+    /* スマホではボタンを少し小さく */
+    .control-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .action-btn {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .move-controls {
+        bottom: 15px;
+        left: 15px;
+        gap: 10px;
+    }
+    
+    .action-controls {
+        bottom: 15px;
+        right: 15px;
+    }
+}
+
+/* 超小型スマホ */
+@media (max-width: 400px) {
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .action-btn {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .action-icon {
+        font-size: 2rem;
+    }
+}
+
+/* ゲームコンテナに相対位置を設定 */
+.game-container {
+    position: relative;
+}
