@@ -408,3 +408,126 @@ body {
         display: block;
     }
 }
+
+/* ========================================
+   選択式ボタンスタイル
+   ======================================== */
+.selection-group {
+    margin-bottom: 40px;
+}
+
+.selection-group h3 {
+    color: #667eea;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.select-btn {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border: 3px solid transparent;
+    border-radius: 12px;
+    padding: 18px 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.select-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.select-btn:active {
+    transform: scale(0.98);
+}
+
+.select-btn.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.color-btn {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.color-btn.selected {
+    border-color: white !important;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   大きな生成ボタン
+   ======================================== */
+.generate-btn-big {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 25px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    margin-top: 20px;
+}
+
+.generate-btn-big:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+}
+
+.generate-btn-big:active {
+    transform: scale(0.98);
+}
+
+.generate-btn-big:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========================================
+   レスポンシブ（スマホ対応）
+   ======================================== */
+@media (max-width: 768px) {
+    .button-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .select-btn {
+        padding: 15px 10px;
+        font-size: 1rem;
+    }
+
+    .generate-btn-big {
+        font-size: 1.5rem;
+        padding: 20px;
+    }
+
+    .selection-group h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .button-grid {
+        grid-template-columns: 1fr;
+    }
+}
